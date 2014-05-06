@@ -32,12 +32,12 @@ public class MainForm extends javax.swing.JFrame {
         editButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        bookTable = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         readerTable = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
         borrowingTable = new javax.swing.JTable();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        bookTable = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
         findByItems = new javax.swing.JComboBox();
         foundItems = new javax.swing.JComboBox();
@@ -84,6 +84,27 @@ public class MainForm extends javax.swing.JFrame {
         });
         jToolBar1.add(deleteButton);
 
+        bookTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Title", "Author", "Genre", "Quantity", "ISBN"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(bookTable);
+
+        jTabbedPane1.addTab("Books", jScrollPane1);
+
         readerTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -118,27 +139,6 @@ public class MainForm extends javax.swing.JFrame {
         jScrollPane3.setViewportView(borrowingTable);
 
         jTabbedPane1.addTab("Borrowing", jScrollPane3);
-
-        bookTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Title", "Author", "Genre", "Quantity", "ISBN"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(bookTable);
-
-        jTabbedPane1.addTab("Books", jScrollPane1);
 
         jButton1.setText("Find By");
 
