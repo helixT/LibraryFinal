@@ -9,17 +9,18 @@ package knihovna;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author jduda
  */
 public class ReaderManagerImpl implements ReaderManager {
-    public static final Logger logger = Logger.getLogger(ReaderManagerImpl.class.getName());
     
+    private static final Logger log = LoggerFactory.getLogger(ReaderManagerImpl.class.getName());    
     private DataSource dataSource;
 
     public void setDataSource(DataSource dataSource) {
@@ -28,7 +29,9 @@ public class ReaderManagerImpl implements ReaderManager {
     
     private void checkDataSource() {
         if (dataSource == null) {
-            throw new IllegalStateException("DataSource is not set");
+            String msg = "DataSource is not set";
+            log.error(msg);
+            throw new IllegalStateException(msg);
         }
     } 
 
@@ -38,7 +41,9 @@ public class ReaderManagerImpl implements ReaderManager {
         correctInputReader(reader);
         
         if(reader.getId() != null) {
-            throw new IllegalArgumentException("Reader's id isn't null!");            
+            String msg = "Reader's id isn't null!";
+            log.info(msg);
+            throw new IllegalArgumentException(msg);            
         }
         
         Connection conn = null;
@@ -51,7 +56,7 @@ public class ReaderManagerImpl implements ReaderManager {
                     + "phonenumber) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
             
             st.setString(1, reader.getFullName());
-            st.setString(2, reader.getAdress());
+            st.setString(2, reader.getAddress());
             
             if(reader.getPhoneNumber() == null){
                 st.setNull(3, java.sql.Types.INTEGER);
@@ -66,10 +71,11 @@ public class ReaderManagerImpl implements ReaderManager {
             reader.setId(id);
             
             conn.commit();
+            log.info("Reader " + reader + " was added to database.");
             
         } catch (SQLException ex) {
             String message = "Error when inserting reader" + reader;
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.doRollback(conn);
@@ -82,7 +88,9 @@ public class ReaderManagerImpl implements ReaderManager {
         checkDataSource();
         correctInputReader(reader);
         if(reader.getId() == null) {
-            throw new IllegalArgumentException("Readed's id is null!");            
+            String msg = "Readed's id is null!";
+            log.info(msg);
+            throw new IllegalArgumentException(msg);            
         }
         
         Connection conn = null;
@@ -94,7 +102,7 @@ public class ReaderManagerImpl implements ReaderManager {
             st = conn.prepareStatement("UPDATE READER SET fullname=?,adress=?,phonenumber=? WHERE id=?");
             
             st.setString(1, reader.getFullName());
-            st.setString(2, reader.getAdress());
+            st.setString(2, reader.getAddress());
             if(reader.getPhoneNumber() == null){
                 st.setNull(3, java.sql.Types.INTEGER);
             } else{
@@ -106,10 +114,11 @@ public class ReaderManagerImpl implements ReaderManager {
             DBUtils.checkUpdatesCount(updatedRows, reader, false);
             
             conn.commit();
+            log.info("Reader " + reader + " was updated.");
                         
         }catch(SQLException ex){
             String message = "Error when updating reader" + reader;
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.doRollback(conn);
@@ -121,10 +130,14 @@ public class ReaderManagerImpl implements ReaderManager {
     public void deleteReader(Reader reader) throws ServiceFailureException {
         checkDataSource();
         if(reader == null){
-            throw new IllegalArgumentException("Input reader is null!");
+            String msg = "Input reader is null!";
+            log.info(msg);
+            throw new IllegalArgumentException(msg);
         }
         if(reader.getId() == null){
-            throw new IllegalArgumentException("Input reader's id is null!");
+            String msg = "Input reader's id is null!";
+            log.info(msg);
+            throw new IllegalArgumentException(msg);
         }
         
         Connection conn = null;
@@ -133,21 +146,26 @@ public class ReaderManagerImpl implements ReaderManager {
         try{
             conn = dataSource.getConnection();
             conn.setAutoCommit(false); 
-            st = conn.prepareStatement("DELETE FROM READER WHERE id=? AND fullname=? AND adress=? AND phonenumber=?");
             
+            if(reader.getPhoneNumber() != null){
+                st = conn.prepareStatement("DELETE FROM READER WHERE id=? AND fullname=? AND adress=? AND phonenumber=?");
+                st.setInt(4, reader.getPhoneNumber());
+            } else {
+                st = conn.prepareStatement("DELETE FROM READER WHERE id=? AND fullname=? AND adress=? AND phonenumber IS NULL");
+            }
             st.setLong(1, reader.getId());
             st.setString(2, reader.getFullName());
-            st.setString(3, reader.getAdress());
-            st.setInt(4, reader.getPhoneNumber());
+            st.setString(3, reader.getAddress());
             
             int deletedRows = st.executeUpdate();
             DBUtils.checkUpdatesCount(deletedRows, reader, false);
             
             conn.commit();
+            log.info("Reader " + reader + " was deleted from database.");
             
         } catch (SQLException ex) {
             String message = "Error when deleting reader" + reader;
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.doRollback(conn);
@@ -159,7 +177,9 @@ public class ReaderManagerImpl implements ReaderManager {
     public Reader findReaderById(Long id) throws ServiceFailureException {
         checkDataSource();
         if(id.intValue() <= 0){
-            throw new IllegalArgumentException("Input id isn't positive number!");
+            String msg = "Input id isn't positive number!";
+            log.info(msg);
+            throw new IllegalArgumentException(msg);
         }
         
         Connection conn = null;
@@ -176,11 +196,13 @@ public class ReaderManagerImpl implements ReaderManager {
                 Reader reader = resultToReader(rs);
 
                 if (rs.next()) {
-                    throw new ServiceFailureException(
-                            "Error: Was founded more than one reader "
-                            + "(Input id: " + id + " and were found " + reader + " and " + resultToReader(rs));
+                    String msg = "Was founded more than one reader "
+                            + "(Input id: " + id + " and were found " + reader + " and " + resultToReader(rs);
+                    log.info(msg);
+                    throw new ServiceFailureException(msg);
                 }            
                 
+                log.info("Reader with id " + id + " was found.");
                 return reader;
             } else {
                 return null;
@@ -188,7 +210,7 @@ public class ReaderManagerImpl implements ReaderManager {
             
         } catch (SQLException ex) {
             String message = "Error when finding reader by " + id;
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.closeConnection(conn, st);
@@ -199,6 +221,8 @@ public class ReaderManagerImpl implements ReaderManager {
     public List<Reader> findReaderByName(String name) throws ServiceFailureException {
         checkDataSource();
         if(name == null){
+            String msg = "Input name is null!";
+            log.info(msg);
             throw new IllegalArgumentException("Input name is null!");
         }
         
@@ -217,10 +241,11 @@ public class ReaderManagerImpl implements ReaderManager {
                 listOfReaders.add(resultToReader(rs));
             }
             
+            log.info("Readers with name " + name + " were found.");
             return listOfReaders;
         } catch (SQLException ex) {
             String message = "Error when finding reader name " + name;
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.closeConnection(conn, st);
@@ -245,10 +270,11 @@ public class ReaderManagerImpl implements ReaderManager {
                 listOfReaders.add(resultToReader(rs));
             }
             
+            log.info("All readers were found.");
             return listOfReaders;
         } catch (SQLException ex) {
             String message = "Error when finding readers";
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.closeConnection(conn, st);
@@ -256,22 +282,27 @@ public class ReaderManagerImpl implements ReaderManager {
     }
 
     private void correctInputReader(Reader reader) {
+        String msg = null;
         if(reader == null) {
-            throw new IllegalArgumentException("Input reader is null");            
+            msg = "Input reader is null";            
         }
         if(reader.getFullName() == null) {
-            throw new IllegalArgumentException("Reader's name is null");            
+            msg = "Reader's name is null";           
         }
-        if(reader.getAdress() == null) {
-            throw new IllegalArgumentException("Reader's adress is null");            
+        if(reader.getAddress() == null) {
+            msg = "Reader's adress is null";           
         }
         if(reader.getPhoneNumber() != null){
-            if(reader.getPhoneNumber().intValue() <= 0){
-                throw new IllegalArgumentException("Reader's phone number is neative!");
+            if(reader.getPhoneNumber() <= 0){
+                msg = "Reader's phone number is neative!";
             }
             if(reader.getPhoneNumber().toString().length() != 9){
-                throw new IllegalArgumentException("Reader's phone number hasn't got 9 digits!");
+                msg = "Reader's phone number hasn't got 9 digits!";
             }
+        }
+        if(msg != null){
+            log.info(msg);
+            throw new IllegalArgumentException(msg);
         }
     }
     
@@ -279,7 +310,7 @@ public class ReaderManagerImpl implements ReaderManager {
         Reader reader = new Reader();
         reader.setId(rs.getLong("id"));
         reader.setFullName(rs.getString("fullname"));
-        reader.setAdress(rs.getString("adress"));
+        reader.setAddress(rs.getString("adress"));
         if(rs.getInt("phonenumber") == 0){
             reader.setPhoneNumber(null);
         }else{

@@ -10,9 +10,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -26,7 +27,7 @@ import javax.sql.DataSource;
  */
 public class BorrowingManagerImpl implements BorrowingManager{
 
-    public static final Logger logger = Logger.getLogger(BorrowingManagerImpl.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(BorrowingManagerImpl.class);
     private DataSource dataSource;
 
     public void setDataSource(DataSource dataSource) {
@@ -35,7 +36,9 @@ public class BorrowingManagerImpl implements BorrowingManager{
     
     private void checkDataSource() {
         if (dataSource == null) {
-            throw new IllegalStateException("DataSource is not set");
+            String msg = "DataSource is not set";
+            log.error(msg);
+            throw new IllegalStateException(msg);
         }
     } 
 
@@ -45,6 +48,8 @@ public class BorrowingManagerImpl implements BorrowingManager{
         correctInputBorrowing(borrowing);
         
         if(borrowing.getId() != null) {
+            String msg = "Borrowing's id isn't null!";
+            log.info(msg);
             throw new IllegalArgumentException("Borrowing's id isn't null!");            
         }
         
@@ -68,11 +73,12 @@ public class BorrowingManagerImpl implements BorrowingManager{
             Long id = DBUtils.getId(st.getGeneratedKeys());
             borrowing.setId(id);
             conn.commit();
+            log.info("Borrowing " + borrowing + " was added to database.");
             
         } catch (SQLException ex) {
-            String message = "Error when inserting borrowing " + borrowing;
-            logger.log(Level.SEVERE, message, ex);
-            throw new ServiceFailureException(message, ex);
+            String msg = "Error when inserting borrowing " + borrowing;
+            log.error(msg, ex);
+            throw new ServiceFailureException(msg, ex);
         } finally {
             DBUtils.doRollback(conn);
             DBUtils.closeConnection(conn, st);
@@ -85,6 +91,8 @@ public class BorrowingManagerImpl implements BorrowingManager{
         correctInputBorrowing(borrowing);
         
         if(borrowing.getId() == null){
+            String msg = "Borrowing's id isn't set!";
+            log.info(msg);
             throw new IllegalArgumentException("Borrowing's id isn't set!");
         }
         
@@ -107,10 +115,11 @@ public class BorrowingManagerImpl implements BorrowingManager{
             DBUtils.checkUpdatesCount(updatedRows, borrowing, false);
             
             conn.commit();
+            log.info("Borrowing " + borrowing + " was updated.");
             
         } catch (SQLException ex) {
             String message = "Error when updating borrowing " + borrowing;
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.doRollback(conn);
@@ -122,9 +131,13 @@ public class BorrowingManagerImpl implements BorrowingManager{
     public void deleteBorrowing(Borrowing borrowing) throws ServiceFailureException {
         checkDataSource();
         if(borrowing == null){
-            throw new IllegalArgumentException("Input borrowing is null!");
+            String msg = "Input borrowing is null!";
+            log.info(msg);
+            throw new IllegalArgumentException(msg);
         }
         if(borrowing.getId() == null){
+            String msg = "Input borrowing's id is null!";
+            log.info(msg);
             throw new IllegalArgumentException("Input borrowing's id is null!");
         }
         
@@ -147,10 +160,11 @@ public class BorrowingManagerImpl implements BorrowingManager{
             DBUtils.checkUpdatesCount(deletedRows, borrowing, false);
             
             conn.commit();
+            log.info("Borrowing " + borrowing + " was deleted from database.");
             
         } catch (SQLException ex) {
             String message = "Error when deleting borrowing " + borrowing;
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.doRollback(conn);
@@ -176,10 +190,11 @@ public class BorrowingManagerImpl implements BorrowingManager{
                 listOfBorrowings.add(resultToBorrowing(rs));
             }
             
+            log.info("All borrowings were found.");
             return listOfBorrowings;
         } catch (SQLException ex) {
             String message = "Error when finding all borrowings";
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.closeConnection(conn, st);
@@ -191,6 +206,8 @@ public class BorrowingManagerImpl implements BorrowingManager{
         checkDataSource();
         
         if(id.intValue() <= 0){
+            String msg = "Input id isn't positive number!";
+            log.info(msg);
             throw new IllegalArgumentException("Input id isn't positive number!");
         }
         
@@ -209,11 +226,13 @@ public class BorrowingManagerImpl implements BorrowingManager{
                 Borrowing borrowing = resultToBorrowing(rs);
 
                 if (rs.next()) {
-                    throw new ServiceFailureException(
-                            "Error: Was founded more than one borrowing "
-                            + "(Input id: " + id + " and were found " + borrowing + " and " + resultToBorrowing(rs));
+                    String msg = "Was founded more than one borrowing "
+                            + "(Input id: " + id + " and were found " + borrowing + " and " + resultToBorrowing(rs);
+                    log.info(msg);
+                    throw new ServiceFailureException(msg);
                 }            
                 
+                log.info("Borrowing with id " + id + " was found.");
                 return borrowing;
             } else {
                 return null;
@@ -221,7 +240,7 @@ public class BorrowingManagerImpl implements BorrowingManager{
             
         } catch (SQLException ex) {
             String message = "Error when finding borrowing by id " + id;
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.closeConnection(conn, st);
@@ -233,6 +252,8 @@ public class BorrowingManagerImpl implements BorrowingManager{
         checkDataSource();
         
         if(reader == null){
+            String msg = "Input reader is null!";
+            log.info(msg);
             throw new IllegalArgumentException("Input reader is null!");
         }
         
@@ -252,10 +273,11 @@ public class BorrowingManagerImpl implements BorrowingManager{
                 listOfBorrowings.add(resultToBorrowing(rs));
             }
             
+            log.info("Borrowings with reader " + reader + " were found.");
             return listOfBorrowings;
         } catch (SQLException ex) {
             String message = "Error when finding borrowings by name " + reader;
-            logger.log(Level.SEVERE, message, ex);
+            log.error(message, ex);
             throw new ServiceFailureException(message, ex);
         } finally {
             DBUtils.closeConnection(conn, st);
@@ -263,20 +285,25 @@ public class BorrowingManagerImpl implements BorrowingManager{
     }
 
     private void correctInputBorrowing(Borrowing borrowing) {
+        String msg = null;
         if(borrowing == null){
-            throw new IllegalArgumentException("Input Borrowing is null!");
+            msg = "Input Borrowing is null!";
         }
         if(borrowing.getBookBorrowedFrom() == null){
-            throw new IllegalArgumentException("Not set when the book was borrowed!");
+            msg = "Not set when the book was borrowed!";
         }
         if(borrowing.getBookBorrowedTo() == null){
-            throw new IllegalArgumentException("Not set when the book will be returned!");
+            msg = "Not set when the book will be returned!";
         }
         if(borrowing.getReader() == null){
-            throw new IllegalArgumentException("Reader who borrowed the book isn't set!");
+            msg = "Reader who borrowed the book isn't set!";
         }
         if(borrowing.getBook() == null){
-            throw new IllegalArgumentException("The book that is borrowed isn't set!");
+            msg = "The book that is borrowed isn't set!";
+        }
+        if(msg != null){
+            log.info(msg);
+            throw new IllegalArgumentException(msg);
         }
     }
     
@@ -304,5 +331,4 @@ public class BorrowingManagerImpl implements BorrowingManager{
         
         return borrowing;
     }
-    
 }

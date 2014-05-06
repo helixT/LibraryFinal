@@ -127,28 +127,28 @@ public class ReaderManagerImplTest {
         reader.setFullName("Vasek");
         manager.updateReader(reader);
         assertEquals("Reader's name isn't same after edit", "Vasek", manager.findReaderById(readerId).getFullName());
-        assertEquals("Was updated adress but we want change name", "Botanicka 2", manager.findReaderById(readerId).getAdress());
+        assertEquals("Was updated adress but we want change name", "Botanicka 2", manager.findReaderById(readerId).getAddress());
         assertEquals("Was updated phone number but we want change name", new Integer(123456789), manager.findReaderById(readerId).getPhoneNumber());
 
         reader = manager.findReaderById(readerId);
-        reader.setAdress("Kounicova 3");
+        reader.setAddress("Kounicova 3");
         manager.updateReader(reader);
         assertEquals("Was updated name but we want change adress", "Vasek", manager.findReaderById(readerId).getFullName());
-        assertEquals("Reader's adress isn't same after edit", "Kounicova 3", manager.findReaderById(readerId).getAdress());
+        assertEquals("Reader's adress isn't same after edit", "Kounicova 3", manager.findReaderById(readerId).getAddress());
         assertEquals("Was updated phone number but we want change adress", new Integer(123456789), manager.findReaderById(readerId).getPhoneNumber());
 
         reader = manager.findReaderById(readerId);
         reader.setPhoneNumber(987654321);
         manager.updateReader(reader);
         assertEquals("Was updated name but we want change phone number", "Vasek", manager.findReaderById(readerId).getFullName());
-        assertEquals("Was updated adress but we want change phone number", "Kounicova 3", manager.findReaderById(readerId).getAdress());
+        assertEquals("Was updated adress but we want change phone number", "Kounicova 3", manager.findReaderById(readerId).getAddress());
         assertEquals("Reader's phone number isn't same after edit", new Integer(987654321), manager.findReaderById(readerId).getPhoneNumber());
 
         reader = manager.findReaderById(readerId);
         reader.setPhoneNumber(null);
         manager.updateReader(reader);
         assertEquals("Was updated name but we want change phone number", "Vasek", manager.findReaderById(readerId).getFullName());
-        assertEquals("Was updated adress but we want change phone number", "Kounicova 3", manager.findReaderById(readerId).getAdress());
+        assertEquals("Was updated adress but we want change phone number", "Kounicova 3", manager.findReaderById(readerId).getAddress());
         assertNull("Reader's phone number isn't null after edit", manager.findReaderById(readerId).getPhoneNumber());
 
         assertAllParametrsEquals(reader2, manager.findReaderById(reader2.getId()));
@@ -184,7 +184,7 @@ public class ReaderManagerImplTest {
         
         try{
             Reader reader = manager.findReaderById(readerId);
-            reader.setAdress(null);
+            reader.setAddress(null);
             manager.updateReader(reader);
             fail("You can change adress of reader to null!");
         }catch(IllegalArgumentException iae){}
@@ -301,7 +301,7 @@ public class ReaderManagerImplTest {
     static void assertAllParametrsEquals(Reader expected, Reader actual) {
         assertEquals("Id of readers isn't same!", expected.getId(), actual.getId());
         assertEquals("Name of readers isn't same!", expected.getFullName(), actual.getFullName());
-        assertEquals("Adress of readers isn't same!", expected.getAdress(), actual.getAdress());
+        assertEquals("Adress of readers isn't same!", expected.getAddress(), actual.getAddress());
         assertEquals("Phone number of readers isn't same!", expected.getPhoneNumber(), actual.getPhoneNumber());
     }
 
@@ -324,7 +324,7 @@ public class ReaderManagerImplTest {
     static Reader createReader(String fullName, String adress, Integer phoneNumber){
         Reader reader = new Reader();
         reader.setFullName(fullName);
-        reader.setAdress(adress);
+        reader.setAddress(adress);
         reader.setPhoneNumber(phoneNumber);
         return reader;
     }

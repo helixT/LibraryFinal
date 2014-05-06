@@ -16,7 +16,7 @@ public class Reader {
     
     private Long id;
     private String fullName;
-    private String adress;
+    private String address;
     private Integer phoneNumber;
     
         
@@ -28,8 +28,8 @@ public class Reader {
         return fullName;
     }
 
-    public String getAdress() {
-        return adress;
+    public String getAddress() {
+        return address;
     }
 
     public Integer getPhoneNumber() {
@@ -44,8 +44,8 @@ public class Reader {
         this.fullName = fullName;
     }
 
-    public void setAdress(String adress) {
-        this.adress = adress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public void setPhoneNumber(Integer phoneNumber) {
@@ -54,7 +54,7 @@ public class Reader {
 
     @Override
     public String toString() {
-        return "Reader{" + "id=" + id + ", fullName=" + fullName + ", adress=" + adress + ", phone=" + phoneNumber + '}';
+        return "Reader{" + "id=" + id + ", fullName=" + fullName + ", adress=" + address + ", phone=" + phoneNumber + '}';
     }
 
     @Override
