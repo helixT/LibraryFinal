@@ -32,12 +32,12 @@ public class MainForm extends javax.swing.JFrame {
         editButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        bookTable = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         readerTable = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
         borrowingTable = new javax.swing.JTable();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        bookTable = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
         findByItems = new javax.swing.JComboBox();
         foundItems = new javax.swing.JComboBox();
@@ -77,23 +77,29 @@ public class MainForm extends javax.swing.JFrame {
         deleteButton.setFocusable(false);
         deleteButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         deleteButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
+            }
+        });
         jToolBar1.add(deleteButton);
 
-        bookTable.setModel(new javax.swing.table.DefaultTableModel(
+        readerTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Full name", "Address", "Phone number"
             }
-        ));
-        jScrollPane1.setViewportView(bookTable);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Integer.class
+            };
 
-        jTabbedPane1.addTab("Books", jScrollPane1);
-
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
         jScrollPane2.setViewportView(readerTable);
 
         jTabbedPane1.addTab("Readers", jScrollPane2);
@@ -106,16 +112,42 @@ public class MainForm extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Reader", "Book", "Borrowed from", "Borrowed to"
             }
         ));
         jScrollPane3.setViewportView(borrowingTable);
 
         jTabbedPane1.addTab("Borrowing", jScrollPane3);
 
+        bookTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Title", "Author", "Genre", "Quantity", "ISBN"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(bookTable);
+
+        jTabbedPane1.addTab("Books", jScrollPane1);
+
         jButton1.setText("Find By");
 
-        findByItems.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Title", "Author", "Item 3", "Item 4" }));
+        findByItems.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Title", "Author", "Genre", "ISBN" }));
+        findByItems.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                findByItemsActionPerformed(evt);
+            }
+        });
 
         foundItems.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -141,15 +173,15 @@ public class MainForm extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 752, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(findByItems, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(findByItems, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(foundItems, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(14, 14, 14)
+                .addGap(18, 18, 18)
                 .addComponent(jButton1)
-                .addGap(18, 18, 18))
+                .addGap(14, 14, 14))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,8 +193,7 @@ public class MainForm extends javax.swing.JFrame {
                     .addComponent(findByItems, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(foundItems, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 66, Short.MAX_VALUE))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE))
         );
 
         pack();
@@ -180,15 +211,19 @@ public class MainForm extends javax.swing.JFrame {
         switch (jTabbedPane1.getSelectedIndex()) {
             case 0:
                 EditBook editB = new EditBook();
-                editB.Name(name + " BOOK");
+                editB.name(name + " BOOK");
                 editB.setVisible(true);
                 break;
             case 1:
                 EditReader editR = new EditReader();
-                editR.Name(name + " READER");
+                editR.name(name + " READER");
                 editR.setVisible(true);
                 break;
-            // case 2: EditBorrowing
+            case 2: 
+                EditBorrowing editBorrowing = new EditBorrowing();
+                editBorrowing.name(name + " BORROWING");
+                editBorrowing.setVisible(true);
+                break;
             default:
                 throw new IllegalArgumentException("TabbedPane wrong index.");
         }
@@ -197,6 +232,14 @@ public class MainForm extends javax.swing.JFrame {
     private void exitItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitItemActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitItemActionPerformed
+
+    private void findByItemsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findByItemsActionPerformed
+        
+    }//GEN-LAST:event_findByItemsActionPerformed
+
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_deleteButtonActionPerformed
 
     /**
      * @param args the command line arguments
