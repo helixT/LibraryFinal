@@ -74,8 +74,9 @@
                   <Component id="findByItems" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="foundItems" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="jTabbedPane1" pref="305" max="32767" attributes="0"/>
+              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+              <Component id="jTabbedPane1" pref="286" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -204,12 +205,8 @@
           <SubComponents>
             <Component class="javax.swing.JTable" name="readerTable">
               <Properties>
-                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                  <Table columnCount="3" rowCount="0">
-                    <Column editable="true" title="Full name" type="java.lang.String"/>
-                    <Column editable="true" title="Address" type="java.lang.String"/>
-                    <Column editable="true" title="Phone number" type="java.lang.Integer"/>
-                  </Table>
+                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new ReadersTableModel()" type="code"/>
                 </Property>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                   <TableColumnModel selectionModel="0">
@@ -253,13 +250,8 @@
           <SubComponents>
             <Component class="javax.swing.JTable" name="borrowingTable">
               <Properties>
-                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                  <Table columnCount="4" rowCount="4">
-                    <Column editable="true" title="Reader" type="java.lang.Object"/>
-                    <Column editable="true" title="Book" type="java.lang.Object"/>
-                    <Column editable="true" title="Borrowed from" type="java.lang.Object"/>
-                    <Column editable="true" title="Borrowed to" type="java.lang.Object"/>
-                  </Table>
+                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new BorrowingsTableModel()" type="code"/>
                 </Property>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                   <TableColumnModel selectionModel="0">

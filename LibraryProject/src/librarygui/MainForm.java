@@ -5,12 +5,33 @@
  */
 package librarygui;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sql.DataSource;
+import javax.swing.table.AbstractTableModel;
+import knihovna.Borrowing;
+import knihovna.BorrowingManager;
+import knihovna.BorrowingManagerImpl;
+import knihovna.DBUtils;
+import knihovna.Reader;
+import knihovna.ReaderManager;
+import knihovna.ReaderManagerImpl;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.derby.jdbc.ClientDataSource;
+
 /**
  *
  * @author Helix
  */
 public class MainForm extends javax.swing.JFrame {
 
+    private static ReaderManager readerManager = new ReaderManagerImpl();
+    private static BorrowingManager borrowingManager = new BorrowingManagerImpl();
+    private static DataSource dataSource;
+    
     /**
      * Creates new form MainForm
      */
@@ -105,37 +126,12 @@ public class MainForm extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Books", jScrollPane1);
 
-        readerTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Full name", "Address", "Phone number"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Integer.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
+        readerTable.setModel(new ReadersTableModel());
         jScrollPane2.setViewportView(readerTable);
 
         jTabbedPane1.addTab("Readers", jScrollPane2);
 
-        borrowingTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Reader", "Book", "Borrowed from", "Borrowed to"
-            }
-        ));
+        borrowingTable.setModel(new BorrowingsTableModel());
         jScrollPane3.setViewportView(borrowingTable);
 
         jTabbedPane1.addTab("Borrowing", jScrollPane3);
@@ -192,8 +188,9 @@ public class MainForm extends javax.swing.JFrame {
                     .addComponent(jButton1)
                     .addComponent(findByItems, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(foundItems, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE))
+                .addGap(26, 26, 26)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -241,6 +238,19 @@ public class MainForm extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_deleteButtonActionPerformed
 
+    private static DataSource prepareDataSource() throws SQLException, IOException {
+        /*Properties myconf = new Properties();
+        myconf.load(MainForm.class.getResourceAsStream("resources/conf.properties"));
+ 
+        ClientDataSource ds = new ClientDataSource();
+        ds.setDatabaseName(myconf.getProperty("jdbc.dbname"));
+        ds.setUser(myconf.getProperty("jdbc.user"));
+        ds.setPassword(myconf.getProperty("jdbc.password"));*/
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl("jdbc:derby:memory:libraryProject;create=true");
+        return ds;
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -268,6 +278,16 @@ public class MainForm extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        try {
+            dataSource = prepareDataSource();
+            DBUtils.executeSqlScript(dataSource, ReaderManagerImpl.class.getResource("createTables.sql"));
+        } catch (SQLException ex) {
+            String message = "Error when connecting with database";
+            //log.log(Level.SEVERE, message, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -297,4 +317,67 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JTable readerTable;
     // End of variables declaration//GEN-END:variables
+
+    private static class ReadersTableModel extends AbstractTableModel {
+
+        @Override
+        public int getRowCount() {
+            return readerManager.findAllReaders().size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return 3;
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            if(rowIndex >= readerManager.findAllReaders().size()){
+                throw new IllegalArgumentException("RowIndex > " + readerManager.findAllReaders().size());
+            }
+            if(columnIndex >= 3){
+                throw new IllegalArgumentException("ColumnIndex > 3");
+            }
+            Reader reader = readerManager.findAllReaders().get(rowIndex);
+            switch(columnIndex){
+                case 0: return reader.getFullName();
+                case 1: return reader.getAddress();
+                case 2: return reader.getPhoneNumber();
+                default: throw new IllegalArgumentException("ColumnIndex < 0");
+            }
+        }
+        
+    }
+    
+    private static class BorrowingsTableModel extends AbstractTableModel {
+
+        @Override
+        public int getRowCount() {
+            return borrowingManager.findAllBorrowing().size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return 4;
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            if(rowIndex >= borrowingManager.findAllBorrowing().size()){
+                throw new IllegalArgumentException("RowIndex > " + borrowingManager.findAllBorrowing().size());
+            }
+            if(columnIndex >= 3){
+                throw new IllegalArgumentException("ColumnIndex > 3");
+            }
+            Borrowing borrowing = borrowingManager.findAllBorrowing().get(rowIndex);
+            switch(columnIndex){
+                case 0: return borrowing.getReader().getFullName();
+                case 1: return borrowing.getBook().getTitle();
+                case 2: return borrowing.getBookBorrowedFrom();
+                case 3: return borrowing.getBookBorrowedTo();
+                default: throw new IllegalArgumentException("ColumnIndex < 0");
+            }
+        }
+        
+    }
 }
