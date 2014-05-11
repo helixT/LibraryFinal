@@ -5,8 +5,10 @@
  */
 package librarygui;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -14,13 +16,10 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 import javax.swing.table.AbstractTableModel;
 import knihovna.Borrowing;
-import knihovna.BorrowingManager;
 import knihovna.BorrowingManagerImpl;
 import knihovna.DBUtils;
 import knihovna.Reader;
-import knihovna.ReaderManager;
 import knihovna.ReaderManagerImpl;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.derby.jdbc.ClientDataSource;
 
 /**
@@ -29,14 +28,25 @@ import org.apache.derby.jdbc.ClientDataSource;
  */
 public class MainForm extends javax.swing.JFrame {
 
-    private static ReaderManager readerManager = new ReaderManagerImpl();
-    private static BorrowingManager borrowingManager = new BorrowingManagerImpl();
+    private static ReaderManagerImpl readerManager = new ReaderManagerImpl();
+    private static BorrowingManagerImpl borrowingManager = new BorrowingManagerImpl();
     private static DataSource dataSource;
 
     /**
      * Creates new form MainForm
      */
     public MainForm() {
+        try {
+            dataSource = prepareDataSource();
+            readerManager.setDataSource(dataSource);
+            borrowingManager.setDataSource(dataSource);
+            DBUtils.executeSqlScript(dataSource, ReaderManagerImpl.class.getResource("createTables.sql"));
+        } catch (SQLException ex) {
+            String message = "Error when connecting with database";
+            //log.log(Level.SEVERE, message, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
         initComponents();
     }
 
@@ -213,16 +223,19 @@ public class MainForm extends javax.swing.JFrame {
             case 0:
                 EditBook editB = new EditBook();
                 editB.name(ResourceBundle.getBundle("string").getString(name + "Book"));
+                editB.setDefaultCloseOperation(EditReader.HIDE_ON_CLOSE);
                 editB.setVisible(true);
                 break;
             case 1:
-                EditReader editR = new EditReader();
-                editR.name(ResourceBundle.getBundle("string").getString(name + "Reader"));
+                EditReader editR = new EditReader(readerManager);
+                editR.setName(ResourceBundle.getBundle("string").getString(name + "Reader"));
+                editR.setDefaultCloseOperation(EditReader.HIDE_ON_CLOSE);
                 editR.setVisible(true);
                 break;
             case 2:
                 EditBorrowing editBorrowing = new EditBorrowing();
                 editBorrowing.name(ResourceBundle.getBundle("string").getString(name + "Borrowing"));
+                editBorrowing.setDefaultCloseOperation(EditReader.HIDE_ON_CLOSE);
                 editBorrowing.setVisible(true);
                 break;
             default:
@@ -243,15 +256,13 @@ public class MainForm extends javax.swing.JFrame {
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private static DataSource prepareDataSource() throws SQLException, IOException {
-        /*Properties myconf = new Properties();
-         myconf.load(MainForm.class.getResourceAsStream("resources/conf.properties"));
- 
-         ClientDataSource ds = new ClientDataSource();
-         ds.setDatabaseName(myconf.getProperty("jdbc.dbname"));
-         ds.setUser(myconf.getProperty("jdbc.user"));
-         ds.setPassword(myconf.getProperty("jdbc.password"));*/
-        BasicDataSource ds = new BasicDataSource();
-        ds.setUrl("jdbc:derby:memory:libraryProject;create=true");
+        Properties myconf = new Properties();
+        myconf.load(MainForm.class.getResourceAsStream("resources/conf.properties"));
+
+        ClientDataSource ds = new ClientDataSource();
+        ds.setDatabaseName(myconf.getProperty("jdbc.dbname"));
+        ds.setUser(myconf.getProperty("jdbc.user"));
+        ds.setPassword(myconf.getProperty("jdbc.password"));
         return ds;
     }
 
@@ -282,21 +293,14 @@ public class MainForm extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        try {
-            dataSource = prepareDataSource();
-            DBUtils.executeSqlScript(dataSource, ReaderManagerImpl.class.getResource("createTables.sql"));
-        } catch (SQLException ex) {
-            String message = "Error when connecting with database";
-            //log.log(Level.SEVERE, message, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new MainForm().setVisible(true);
+                MainForm mainForm = new MainForm();
+                mainForm.setDefaultCloseOperation(MainForm.EXIT_ON_CLOSE);
+                mainForm.setName("Library");
+                mainForm.setVisible(true);
             }
         });
     }
@@ -368,6 +372,18 @@ public class MainForm extends javax.swing.JFrame {
             }
         }
 
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                case 1:
+                    return String.class;
+                case 2:
+                    return Integer.class;
+                default:
+                    throw new IllegalArgumentException("columnIndex");
+            }
+        }
     }
 
     private static class BorrowingsTableModel extends AbstractTableModel {
@@ -404,7 +420,7 @@ public class MainForm extends javax.swing.JFrame {
                     throw new IllegalArgumentException("ColumnIndex < 0");
             }
         }
-        
+
         @Override
         public String getColumnName(int columnIndex) {
             switch (columnIndex) {
@@ -416,6 +432,20 @@ public class MainForm extends javax.swing.JFrame {
                     return ResourceBundle.getBundle("string").getString("borrowedFrom");
                 case 3:
                     return ResourceBundle.getBundle("string").getString("borrowedTo");
+                default:
+                    throw new IllegalArgumentException("columnIndex");
+            }
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                case 1:
+                    return String.class;
+                case 2:
+                case 3:
+                    return Calendar.class;
                 default:
                     throw new IllegalArgumentException("columnIndex");
             }

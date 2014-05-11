@@ -289,8 +289,14 @@ public class ReaderManagerImpl implements ReaderManager {
         if(reader.getFullName() == null) {
             msg = "Reader's name is null";           
         }
+        if(reader.getFullName().isEmpty()) {
+            msg = "Reader's name is empty";           
+        }
         if(reader.getAddress() == null) {
             msg = "Reader's adress is null";           
+        }
+        if(reader.getAddress().isEmpty()) {
+            msg = "Reader's adress is empty";           
         }
         if(reader.getPhoneNumber() != null){
             if(reader.getPhoneNumber() <= 0){
