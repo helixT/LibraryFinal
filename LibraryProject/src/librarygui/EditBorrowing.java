@@ -202,6 +202,18 @@ public class EditBorrowing extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("string"); // NOI18N
+        jLabel4.getAccessibleContext().setAccessibleName(bundle.getString("borrowedFrom")); // NOI18N
+        jLabel3.getAccessibleContext().setAccessibleName(bundle.getString("book")); // NOI18N
+        jLabel2.getAccessibleContext().setAccessibleName(bundle.getString("reader")); // NOI18N
+        jLabel5.getAccessibleContext().setAccessibleName(bundle.getString("borrowedTo")); // NOI18N
+        jLabel6.getAccessibleContext().setAccessibleName(bundle.getString("day")); // NOI18N
+        jLabel7.getAccessibleContext().setAccessibleName(bundle.getString("month")); // NOI18N
+        jLabel8.getAccessibleContext().setAccessibleName(bundle.getString("year")); // NOI18N
+        jLabel9.getAccessibleContext().setAccessibleName(bundle.getString("month")); // NOI18N
+        jLabel10.getAccessibleContext().setAccessibleName(bundle.getString("day")); // NOI18N
+        jLabel11.getAccessibleContext().setAccessibleName(bundle.getString("year")); // NOI18N
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 

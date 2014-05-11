@@ -125,6 +125,11 @@ public class EditReader extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("string"); // NOI18N
+        jLabel2.getAccessibleContext().setAccessibleName(bundle.getString("fullName")); // NOI18N
+        jLabel3.getAccessibleContext().setAccessibleName(bundle.getString("address")); // NOI18N
+        jLabel4.getAccessibleContext().setAccessibleName(bundle.getString("phoneNumber")); // NOI18N
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 

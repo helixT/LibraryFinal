@@ -8,6 +8,7 @@ package librarygui;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
@@ -31,7 +32,7 @@ public class MainForm extends javax.swing.JFrame {
     private static ReaderManager readerManager = new ReaderManagerImpl();
     private static BorrowingManager borrowingManager = new BorrowingManagerImpl();
     private static DataSource dataSource;
-    
+
     /**
      * Creates new form MainForm
      */
@@ -65,7 +66,6 @@ public class MainForm extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         exitItem = new javax.swing.JMenuItem();
-        helpMenu = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Library App");
@@ -82,6 +82,8 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
         jToolBar1.add(addButton);
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("string"); // NOI18N
+        addButton.getAccessibleContext().setAccessibleName(bundle.getString("add")); // NOI18N
 
         editButton.setText("Edit");
         editButton.setFocusable(false);
@@ -93,6 +95,7 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
         jToolBar1.add(editButton);
+        editButton.getAccessibleContext().setAccessibleName(bundle.getString("edit")); // NOI18N
 
         deleteButton.setText("Delete");
         deleteButton.setFocusable(false);
@@ -104,6 +107,7 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
         jToolBar1.add(deleteButton);
+        deleteButton.getAccessibleContext().setAccessibleName(bundle.getString("delete")); // NOI18N
 
         bookTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -124,17 +128,17 @@ public class MainForm extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(bookTable);
 
-        jTabbedPane1.addTab("Books", jScrollPane1);
+        jTabbedPane1.addTab(bundle.getString("books"), jScrollPane1); // NOI18N
 
         readerTable.setModel(new ReadersTableModel());
         jScrollPane2.setViewportView(readerTable);
 
-        jTabbedPane1.addTab("Readers", jScrollPane2);
+        jTabbedPane1.addTab(bundle.getString("readers"), jScrollPane2); // NOI18N
 
         borrowingTable.setModel(new BorrowingsTableModel());
         jScrollPane3.setViewportView(borrowingTable);
 
-        jTabbedPane1.addTab("Borrowing", jScrollPane3);
+        jTabbedPane1.addTab(bundle.getString("borrowings"), jScrollPane3); // NOI18N
 
         jButton1.setText("Find By");
 
@@ -156,11 +160,9 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
         fileMenu.add(exitItem);
+        exitItem.getAccessibleContext().setAccessibleName(bundle.getString("exit")); // NOI18N
 
         jMenuBar1.add(fileMenu);
-
-        helpMenu.setText("Help");
-        jMenuBar1.add(helpMenu);
 
         setJMenuBar(jMenuBar1);
 
@@ -193,32 +195,34 @@ public class MainForm extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        jTabbedPane1.getAccessibleContext().setAccessibleName(bundle.getString("books")); // NOI18N
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-        openOnMenu("ADD");
+        openOnMenu("add");
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
-        openOnMenu("EDIT");
+        openOnMenu("edit");
     }//GEN-LAST:event_editButtonActionPerformed
 
     private void openOnMenu(String name) {
         switch (jTabbedPane1.getSelectedIndex()) {
             case 0:
                 EditBook editB = new EditBook();
-                editB.name(name + " BOOK");
+                editB.name(ResourceBundle.getBundle("string").getString(name + "Book"));
                 editB.setVisible(true);
                 break;
             case 1:
                 EditReader editR = new EditReader();
-                editR.name(name + " READER");
+                editR.name(ResourceBundle.getBundle("string").getString(name + "Reader"));
                 editR.setVisible(true);
                 break;
-            case 2: 
+            case 2:
                 EditBorrowing editBorrowing = new EditBorrowing();
-                editBorrowing.name(name + " BORROWING");
+                editBorrowing.name(ResourceBundle.getBundle("string").getString(name + "Borrowing"));
                 editBorrowing.setVisible(true);
                 break;
             default:
@@ -231,7 +235,7 @@ public class MainForm extends javax.swing.JFrame {
     }//GEN-LAST:event_exitItemActionPerformed
 
     private void findByItemsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findByItemsActionPerformed
-        
+
     }//GEN-LAST:event_findByItemsActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
@@ -240,17 +244,17 @@ public class MainForm extends javax.swing.JFrame {
 
     private static DataSource prepareDataSource() throws SQLException, IOException {
         /*Properties myconf = new Properties();
-        myconf.load(MainForm.class.getResourceAsStream("resources/conf.properties"));
+         myconf.load(MainForm.class.getResourceAsStream("resources/conf.properties"));
  
-        ClientDataSource ds = new ClientDataSource();
-        ds.setDatabaseName(myconf.getProperty("jdbc.dbname"));
-        ds.setUser(myconf.getProperty("jdbc.user"));
-        ds.setPassword(myconf.getProperty("jdbc.password"));*/
+         ClientDataSource ds = new ClientDataSource();
+         ds.setDatabaseName(myconf.getProperty("jdbc.dbname"));
+         ds.setUser(myconf.getProperty("jdbc.user"));
+         ds.setPassword(myconf.getProperty("jdbc.password"));*/
         BasicDataSource ds = new BasicDataSource();
         ds.setUrl("jdbc:derby:memory:libraryProject;create=true");
         return ds;
     }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -287,7 +291,7 @@ public class MainForm extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -307,7 +311,6 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JMenu fileMenu;
     private javax.swing.JComboBox findByItems;
     private javax.swing.JComboBox foundItems;
-    private javax.swing.JMenu helpMenu;
     private javax.swing.JButton jButton1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
@@ -332,23 +335,41 @@ public class MainForm extends javax.swing.JFrame {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            if(rowIndex >= readerManager.findAllReaders().size()){
+            if (rowIndex >= readerManager.findAllReaders().size()) {
                 throw new IllegalArgumentException("RowIndex > " + readerManager.findAllReaders().size());
             }
-            if(columnIndex >= 3){
+            if (columnIndex >= 3) {
                 throw new IllegalArgumentException("ColumnIndex > 3");
             }
             Reader reader = readerManager.findAllReaders().get(rowIndex);
-            switch(columnIndex){
-                case 0: return reader.getFullName();
-                case 1: return reader.getAddress();
-                case 2: return reader.getPhoneNumber();
-                default: throw new IllegalArgumentException("ColumnIndex < 0");
+            switch (columnIndex) {
+                case 0:
+                    return reader.getFullName();
+                case 1:
+                    return reader.getAddress();
+                case 2:
+                    return reader.getPhoneNumber();
+                default:
+                    throw new IllegalArgumentException("ColumnIndex < 0");
             }
         }
-        
+
+        @Override
+        public String getColumnName(int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return ResourceBundle.getBundle("string").getString("fullName");
+                case 1:
+                    return ResourceBundle.getBundle("string").getString("address");
+                case 2:
+                    return ResourceBundle.getBundle("string").getString("phoneNumber");
+                default:
+                    throw new IllegalArgumentException("columnIndex");
+            }
+        }
+
     }
-    
+
     private static class BorrowingsTableModel extends AbstractTableModel {
 
         @Override
@@ -363,21 +384,42 @@ public class MainForm extends javax.swing.JFrame {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            if(rowIndex >= borrowingManager.findAllBorrowing().size()){
+            if (rowIndex >= borrowingManager.findAllBorrowing().size()) {
                 throw new IllegalArgumentException("RowIndex > " + borrowingManager.findAllBorrowing().size());
             }
-            if(columnIndex >= 3){
+            if (columnIndex >= 3) {
                 throw new IllegalArgumentException("ColumnIndex > 3");
             }
             Borrowing borrowing = borrowingManager.findAllBorrowing().get(rowIndex);
-            switch(columnIndex){
-                case 0: return borrowing.getReader().getFullName();
-                case 1: return borrowing.getBook().getTitle();
-                case 2: return borrowing.getBookBorrowedFrom();
-                case 3: return borrowing.getBookBorrowedTo();
-                default: throw new IllegalArgumentException("ColumnIndex < 0");
+            switch (columnIndex) {
+                case 0:
+                    return borrowing.getReader().getFullName();
+                case 1:
+                    return borrowing.getBook().getTitle();
+                case 2:
+                    return borrowing.getBookBorrowedFrom();
+                case 3:
+                    return borrowing.getBookBorrowedTo();
+                default:
+                    throw new IllegalArgumentException("ColumnIndex < 0");
             }
         }
         
+        @Override
+        public String getColumnName(int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return ResourceBundle.getBundle("string").getString("reader");
+                case 1:
+                    return ResourceBundle.getBundle("string").getString("book");
+                case 2:
+                    return ResourceBundle.getBundle("string").getString("borrowedFrom");
+                case 3:
+                    return ResourceBundle.getBundle("string").getString("borrowedTo");
+                default:
+                    throw new IllegalArgumentException("columnIndex");
+            }
+        }
+
     }
 }

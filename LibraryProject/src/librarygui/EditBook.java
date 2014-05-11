@@ -145,6 +145,12 @@ public class EditBook extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("string"); // NOI18N
+        jLabel2.getAccessibleContext().setAccessibleName(bundle.getString("title")); // NOI18N
+        jLabel3.getAccessibleContext().setAccessibleName(bundle.getString("author")); // NOI18N
+        jLabel4.getAccessibleContext().setAccessibleName(bundle.getString("genre")); // NOI18N
+        jLabel5.getAccessibleContext().setAccessibleName(bundle.getString("quantity")); // NOI18N
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
