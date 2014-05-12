@@ -14,7 +14,10 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
+import knihovna.Book;
+import knihovna.BookManagerImpl;
 import knihovna.Borrowing;
 import knihovna.BorrowingManagerImpl;
 import knihovna.DBUtils;
@@ -30,6 +33,7 @@ public class MainForm extends javax.swing.JFrame {
 
     private static ReaderManagerImpl readerManager = new ReaderManagerImpl();
     private static BorrowingManagerImpl borrowingManager = new BorrowingManagerImpl();
+    private static BookManagerImpl bookManager = new BookManagerImpl();
     private static DataSource dataSource;
 
     /**
@@ -141,6 +145,7 @@ public class MainForm extends javax.swing.JFrame {
         jTabbedPane1.addTab(bundle.getString("books"), jScrollPane1); // NOI18N
 
         readerTable.setModel(new ReadersTableModel());
+        readerTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(readerTable);
 
         jTabbedPane1.addTab(bundle.getString("readers"), jScrollPane2); // NOI18N
@@ -211,14 +216,14 @@ public class MainForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-        openOnMenu("add");
+        setAddOrEditWindow("add");
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
-        openOnMenu("edit");
+        setAddOrEditWindow("edit");
     }//GEN-LAST:event_editButtonActionPerformed
 
-    private void openOnMenu(String name) {
+    private void setAddOrEditWindow(String name) {
         switch (jTabbedPane1.getSelectedIndex()) {
             case 0:
                 EditBook editB = new EditBook();
@@ -227,14 +232,40 @@ public class MainForm extends javax.swing.JFrame {
                 editB.setVisible(true);
                 break;
             case 1:
-                EditReader editR = new EditReader(readerManager);
+                EditReader editR;
+                if (name.equals("edit")) {
+                    int selectedRow = readerTable.getSelectedRow();
+                    if (selectedRow == -1) {
+                        JOptionPane.showMessageDialog(this,
+                                "Some reader must be selected!",
+                                "Attention!", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    } else {
+                        editR = new EditReader(readerManager, selectedRow);
+                    }
+                } else {
+                    editR = new EditReader(readerManager);
+                }
                 editR.setName(ResourceBundle.getBundle("string").getString(name + "Reader"));
                 editR.setDefaultCloseOperation(EditReader.HIDE_ON_CLOSE);
                 editR.setVisible(true);
                 break;
             case 2:
-                EditBorrowing editBorrowing = new EditBorrowing();
-                editBorrowing.name(ResourceBundle.getBundle("string").getString(name + "Borrowing"));
+                EditBorrowing editBorrowing;
+                if (name.equals("edit")) {
+                    int selectedRow = borrowingTable.getSelectedRow();
+                    if (selectedRow == -1) {
+                        JOptionPane.showMessageDialog(this,
+                                "Some borrowing must be selected!",
+                                "Attention!", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    } else {
+                        editBorrowing = new EditBorrowing(borrowingManager, selectedRow);
+                    }
+                } else {
+                    editBorrowing = new EditBorrowing(borrowingManager);
+                }
+                editBorrowing.setName(ResourceBundle.getBundle("string").getString(name + "Borrowing"));
                 editBorrowing.setDefaultCloseOperation(EditReader.HIDE_ON_CLOSE);
                 editBorrowing.setVisible(true);
                 break;
@@ -252,7 +283,58 @@ public class MainForm extends javax.swing.JFrame {
     }//GEN-LAST:event_findByItemsActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        // TODO add your handling code here:
+        int answer;
+        int selectedRow;
+        switch (jTabbedPane1.getSelectedIndex()) {
+            case 0:
+                selectedRow = bookTable.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(this,
+                            "Some book must be selected!",
+                            "Attention!", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    answer = JOptionPane.showConfirmDialog(this, "Do you want really delete the book",
+                            "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (answer == 0) {
+                        Book book = bookManager.findAllBooks().get(selectedRow);
+                        bookManager.deleteBook(book);
+                    }
+                }
+                break;
+            case 1:
+                selectedRow = readerTable.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(this,
+                            "Some reader must be selected!",
+                            "Attention!", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    answer = JOptionPane.showConfirmDialog(this, "Do you want really delete the reader",
+                            "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (answer == 0) {
+                        Reader reader = readerManager.findAllReaders().get(selectedRow);
+                        readerManager.deleteReader(reader);
+                    }
+                }
+                break;
+            case 2:
+                selectedRow = readerTable.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(this,
+                            "Some borrowing must be selected!",
+                            "Attention!", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    answer = JOptionPane.showConfirmDialog(this, "Do you want really delete the borrowing",
+                            "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (answer == 0) {
+                        Borrowing borrowing = borrowingManager.findAllBorrowing().get(selectedRow);
+                        borrowingManager.deleteBorrowing(borrowing);
+                    }
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("TabbedPane wrong index.");
+        }
+
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private static DataSource prepareDataSource() throws SQLException, IOException {

@@ -18,6 +18,8 @@ public class EditReader extends javax.swing.JFrame {
 
     private SwingWorker worker;
     private ReaderManagerImpl readerManager;
+    private Reader reader;
+    private String mode;
 
     /**
      * Creates new form EditReader
@@ -28,7 +30,19 @@ public class EditReader extends javax.swing.JFrame {
 
     public EditReader(ReaderManagerImpl manager) {
         readerManager = manager;
+        reader = new Reader();
+        mode = "add";
         initComponents();
+    }
+    
+    public EditReader(ReaderManagerImpl manager, int row) {
+        readerManager = manager;
+        reader = readerManager.findAllReaders().get(row);
+        mode = "edit";
+        initComponents();
+        fullNameTextField.setText(reader.getFullName());
+        addressTextField.setText(reader.getAddress());
+        phoneNumberTextField.setText(reader.getPhoneNumber().toString());
     }
 
     @Override
@@ -147,13 +161,16 @@ public class EditReader extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        Reader reader = new Reader();
-
         reader.setFullName(fullNameTextField.getText());
         reader.setAddress(addressTextField.getText());
         try {
             reader.setPhoneNumber(Integer.parseInt(phoneNumberTextField.getText()));
-            readerManager.addReader(reader);
+            if(mode.equals("add")){
+                readerManager.addReader(reader);
+            } else {
+                reader.setId(reader.getId());
+                readerManager.updateReader(reader);
+            }
             this.setVisible(false);
         } catch (NumberFormatException nfe) {
             JOptionPane.showMessageDialog(this,
