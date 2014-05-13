@@ -54,11 +54,11 @@
           <Component id="jToolBar1" alignment="0" max="32767" attributes="0"/>
           <Component id="jTabbedPane1" alignment="1" pref="752" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="filterTextField" min="-2" pref="266" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -302,6 +302,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="filterTextField">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="filterTextFieldActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
